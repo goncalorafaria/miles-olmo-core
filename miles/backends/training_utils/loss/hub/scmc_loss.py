@@ -11,7 +11,7 @@ from miles.backends.training_utils.loss.hub.score_centering_loss import (
 )
 
 
-def _loss(args, batch, logits, reduce, *, centered):
+def _loss(args, batch, logits, reduce, *, centered, token_loss_fn=monte_carlo_loss):
     if centered:
         modes = batch.get("rollout_score_mode")
         if not modes or any(mode != "mc" for mode in modes):
@@ -36,7 +36,7 @@ def _loss(args, batch, logits, reduce, *, centered):
         ids = _local_candidates(args, batch, "rollout_topk_token_ids", logits.device)
         head = _local_candidates(args, batch, "rollout_topk_log_probs", logits.device)
         probes = dict(probe_logp=selected[:, 1:], probe_logq=head, probe_valid=ids >= 0)
-    token_loss, metrics = monte_carlo_loss(
+    token_loss, metrics = token_loss_fn(
         selected[:, 0],
         rollout,
         advantages,
