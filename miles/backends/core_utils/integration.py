@@ -2,6 +2,7 @@
 
 import asyncio
 
+from miles.backends.core_utils.icepop_config import validate_icepop_args
 from miles.backends.hooks import BackendHooks
 from miles.utils.async_utils import run
 from miles.utils.function_registry import load_function
@@ -15,6 +16,7 @@ def load_args(*, extra_args_provider):
 
 
 def configure_rollout(args, user_eval_path: str | None) -> None:
+    validate_icepop_args(args)
     if not args.fully_async:
         return
     original_path = args.rollout_function_path
